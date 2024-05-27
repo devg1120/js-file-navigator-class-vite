@@ -1,0 +1,19 @@
+{
+  "name": "js-file-navigator-class-vite",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host --port 3000",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.2.0"
+  },
+  "dependencies": {
+    "ace-builds": "^1.34.1",
+    "flex-splitter-directive": "^0.5.1",
+    "marked": "^12.0.2"
+  }
+}

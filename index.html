@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>file-tree demo</title>
+    <link href="main.css" rel="stylesheet" />
+  </head>
+  <body>
+    <section data-flex-splitter-horizontal id="container">
+      <div data-flex-splitter-vertical id="file-container">
+        <file-tree style="height: 50%">
+          <button type="button" slot="browse-button">Open directory</button>
+          <label id="topdir" slot="browse-path">-------------</label>
+        </file-tree>
+
+        <div role="separator" tabindex="1" class="separator"></div>
+
+        <div id="search">
+          <div id="search-container">
+            <div class="controls">
+              <div id="search-type">
+                <label>
+                  <input
+                    type="radio"
+                    name="search-type"
+                    value="files"
+                    checked
+                  />
+                  Search path-names
+                </label>
+
+                <label>
+                  <input type="radio" name="search-type" value="in-files" />
+                  Search in files
+                </label>
+              </div>
+              <input
+                id="search-input"
+                type="text"
+                name="query"
+                placeholder="gsSearch"
+                disabled
+              />
+            </div>
+            <div id="search-results"></div>
+          </div>
+        </div>
+      </div>
+      <div role="separator" tabindex="1" class="separator"></div>
+      <div id="file-preview">
+        <div id="file-preview-header" class="buttons">
+          <button type="button" id="save-button" label="Save" raised disabled>
+            Save
+          </button>
+          <button
+            type="button"
+            id="save-as-button"
+            label="Save as..."
+            raised
+            disabled
+          >
+            Save as...
+          </button>
+        </div>
+        <!--
+                <div role="separator" tabindex="1" class="separator"></div>
+	-->
+        <div id="file-content"></div>
+      </div>
+    </section>
+    <script src="main.js" type="module"></script>
+  </body>
+</html>

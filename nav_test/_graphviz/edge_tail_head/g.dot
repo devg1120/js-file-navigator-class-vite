@@ -1,0 +1,29 @@
+digraph graph_name {
+  graph [
+    ranksep = 1.1
+  ];
+
+  //node define
+  alpha;
+  beta;
+
+  // edge define
+  alpha -> beta [
+    label = "a-b",            //エッジラベル
+    labelfloat = true,        //ラベルの重なりを許可する
+    headlabel = "head",       //エッジの終端にラベルをつける
+    taillabel = "tail",       //エッジの始端にラベルをつける
+    labeldistance = 2.5,      //ラベルの位置をノードからの距離で指定する
+    labelangle = 70,          //ラベルの位置を角度で指定する
+    color = blue,             //エッジカラー
+    style = solid,            //エッジスタイル
+    dir = both,               //エッジの矢印を指定する
+    arrowhead = normal,       //エッジの終端の形状を指定
+    arrowtail = normal,       //エッジの始端の形状を指定
+    arrowsize = 1,            //矢印の大きさ倍率で指定
+    weight = 5                //エッジの重み付け 重みが大きいエッジが結ぶノードがより近く配置される
+    fontname = "Migu 1M",     //エッジラベルフォント
+    fontsize = 14,            //エッジラベルフォントサイズ
+    fontcolor = blue          //エッジラベルフォントカラー
+  ];
+}

@@ -1,0 +1,21 @@
+graph G{
+    graph[label="this is gtaph";bgcolor=green]
+    a[shape=square; label="hello"]
+    b[shape=circle]
+    c[shape=triangle]
+    
+    subgraph cluster1{
+        graph[label="this is subgraph1"; color=blue; bgcolor="#606060"]
+        a--b
+        b--c
+        c--a
+        {rank=same; b c}
+    }
+    
+    subgraph clusteraiueo{
+        d -- e -- f -- d
+        {rank=same; e f}
+        {rank=max; e}
+    }
+    
+}

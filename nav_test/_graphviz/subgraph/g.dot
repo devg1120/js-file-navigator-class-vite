@@ -1,0 +1,101 @@
+
+digraph node_sample {
+  //graph settings
+  graph [
+    charset = "UTF-8";
+    label = "node simple",
+    labelloc = "t",
+    labeljust = "c",
+    bgcolor = "#343434",
+    fontcolor = white,
+    fontsize = 18,
+    style = "filled",
+    rankdir = TB,
+    margin = 0.2,
+    nodesep = 0.5,
+    ranksep = 0.8,
+    compound = true
+  ];
+  // node common settings
+  node [
+    colorscheme = rdylgn11,
+    fontname = "Migu 1M",
+    color = 7,
+    fontsize = 12,
+    fontcolor = 6,
+    fillcolor = 11,
+    margin = 0.05,
+    style = "solid,filled"
+  ];
+  edge [
+    color = white
+  ];
+
+  subgraph cluster_0 {
+    label = "clu0";
+    labelloc = "t";
+    labeljust = "l";
+    fillcolor = "#ababab";
+
+    alpha [label = "alpha", shape = box];
+    beta [label = "beta", shape = box];
+    gamma [label = "gamma", shape = box];
+    eta [label = "eta", shape = box];
+
+    alpha -> beta;
+    alpha -> gamma;
+    alpha -> eta;
+  };
+
+  subgraph cluster_1 {
+    label = "clu1";
+    labelloc = "t";
+    labeljust = "l";
+    fillcolor = "#ababab";
+
+    delta [label = "delta"];
+    epsilon [label = "epsilon"];
+    zeta [label = "zeta"];
+    theta [label = "theta"];
+
+    delta -> epsilon;
+    delta -> zeta;
+    delta -> theta;
+  };
+
+  subgraph cluster_2 {
+    label = "clu2";
+    labelloc = "t";
+    labeljust = "l";
+    fillcolor = "#888888";
+
+    lambda [label = "lambda", shape = "octagon"];
+    mu [label = "mu", shape = "octagon"];
+
+    lambda -> mu;
+  };
+
+ subgraph cluster_3 {
+    label = "clu3";
+    labelloc = "t";
+    labeljust = "l";
+    fillcolor = "#888888";
+
+    nu [label = "nu", shape = "trapezium"];
+    xi [label = "xi", shape = "trapezium"];
+
+    nu -> xi;
+  }
+
+  subgraph sg {
+    iota [label = "iota", shape = "Mdiamond" ];
+    kappa [label = "kappa", shape = "Mdiamond"];
+    iota -> kappa;
+  };
+
+  alpha -> delta;
+  beta -> lambda [weight = 3];
+  gamma -> lambda;
+  epsilon -> nu;
+  eta -> mu;
+}

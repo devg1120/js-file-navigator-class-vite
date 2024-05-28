@@ -1,0 +1,36 @@
+digraph G {
+
+    graph [fontsize=10 fontname="Verdana"];
+    node [shape=record fontsize=10 fontname="Verdana"];
+
+    subgraph cluster_0 {
+        node [style=filled];
+        "Item 1" "Item 2";
+        label = "Container A";
+        color=blue;
+    }
+
+    subgraph cluster_1 {
+        node [style=filled];
+        "Item 3" "Item 4";
+        label = "Container B";
+        color=blue;
+    }
+
+    subgraph cluster_2 {
+        node [style=filled];
+        "Item 5" "Item 6";
+        label = "Container C";
+        color=blue;
+    }
+
+    // Renders fine
+    "Item 1" -> "Item 2";
+    "Item 2" -> "Item 3";
+
+    // Both of these create new nodes
+    cluster_1 -> cluster_2;
+    "Container A" -> "Container C";
+}
+
+

@@ -1,0 +1,37 @@
+digraph class_diagram {
+  rankdir = TB
+  node [shape=record, style=filled, color=FireBrick, fillcolor=FloralWhite, fontsize="10px", fontname="IPAGothic"]
+  edge [dir=back, color=FireBrick, arrowtail=empty, fontsize="10px", fontname="IPAGothic"]
+
+  Object [label = "{ol.Object}"]
+  Geometry [label = "{ol.geom.Geometry||+getClosestPoint(point)}"]
+  GeometryCollection [label = "{ol.geom.GeometryCollection||+getGeometries()\n+setGeometries(geometries)}"]
+  SimpleGeometry [label = "{ol.geom.SimpleGeometry||+getLayout()}"]
+
+  Circle [label = "{ol.geom.Circle|center\nradius\nlayout|}"]
+  LinearRing [label = "{ol.geom.LinearRing|coordinates\nlayout|}"]
+  LinearString [label = "{ol.geom.LineString|coordinates\nlayout|}"]
+  MultiLineString [label = "{ol.geom.MultiLineString|[coordinates]\nlayout|}"]
+  MultiPoint [label = "{ol.geom.MultiPoint|coordinates\nlayout|+getPoints()\n+getPoint(index)}"]
+  Point [label = "{ol.geom.Point|coordinate\nlayout|}"]
+  MultiPolygon [label = "{ol.geom.MultiPolygon|[[coordinates]]\nlayout|+getInteriorPoints()\n+getPolygons()\n+getPloygon(index)}"]
+  Polygon [label = "{ol.geom.Polygon|[coordinates]\nlayout|+getInteriorPoint()}"]
+
+  Object -> Geometry
+  Geometry -> GeometryCollection
+  Geometry -> SimpleGeometry
+  SimpleGeometry -> Circle
+  SimpleGeometry -> LinearRing
+  SimpleGeometry -> LinearString
+  SimpleGeometry -> MultiLineString
+
+  SimpleGeometry -> MultiPoint
+  SimpleGeometry -> Point
+
+  SimpleGeometry -> MultiPolygon
+  SimpleGeometry -> Polygon
+
+  GeometryCollection -> Geometry [arrowtail=odiamond]
+  MultiPoint -> Point [arrowtail=odiamond]
+  MultiPolygon -> Polygon [arrowtail=odiamond]
+}

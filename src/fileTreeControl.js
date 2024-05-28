@@ -14,6 +14,8 @@ import "ace-builds/src-noconflict/mode-html";
 import "flex-splitter-directive/index.js";
 import "flex-splitter-directive/styles.min.css";
 
+import * as monaco from 'monaco-editor';
+
 export class FileTreeControl {
   constructor() {
     this.fileContent = document.querySelector("#file-content");
@@ -108,9 +110,35 @@ export class FileTreeControl {
             this.editor.setFontSize(18);
             this.editor.setValue(contents) ;
 	} else if (this.monaco_editor_use ) {
+
+            //if ( this.editor != null) {
+            //    this.editor.dispose() ;
+            //} 
+       /*
+            const myNode = document.getElementById("file-content");
+	    while (myNode.firstChild) {
+		      myNode.removeChild(myNode.lastChild);
+	    }
+            myNode.removeAttribute("context")
+		console.dir(myNode);
+	*/
+        //    const parent = document.getElementById("file-content")
+        //    while (parent.firstChild) {
+	//		    parent.firstChild.remove()
+	//    }
+	//	parent.textContent = "";
+
             if ( this.editor != null) {
-                this.editor.setValue(contents) ;
-            } else {
+                this.editor.dispose() ;
+            } 
+            var element = document.getElementById("file-content"); 
+		while (element.firstChild) { 
+			    element.removeChild(element.firstChild); 
+			    // OR 
+			//     element.firstChild.remove(); 
+			     }
+			
+ 
             this.editor = monaco.editor.create(
               document.getElementById("file-content"),
               {
@@ -118,7 +146,7 @@ export class FileTreeControl {
                 //language: "javascript",
               }
             );
-	    };
+	    
         } else {
            this.fileContent.innerHTML = `<textarea>${contents}</textarea>`;
 	}

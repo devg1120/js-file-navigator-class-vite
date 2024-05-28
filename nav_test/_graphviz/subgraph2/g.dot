@@ -1,0 +1,18 @@
+digraph G {
+ranksep=0.1
+    subgraph cluster_outer {
+        subgraph cluster_1 {
+            a [shape=rect, height=1.5]
+            b [shape=rect]
+            a -> b[minlen=2]
+        }
+        
+        subgraph cluster_2 {
+            
+           c [shape=rect]
+           d [shape=rect]
+           c -> d [color=red]
+           color=red
+        }
+    }
+}

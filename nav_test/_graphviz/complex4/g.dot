@@ -1,0 +1,93 @@
+digraph god {
+  node [fontsize="10px", fontname="IPAGothic"]
+  subgraph Generation0 {
+    rank = same
+    アダムとエバ [shape = point, width=.01, height=.01]
+    アダム [shape = box, color = blue]
+    エバ [shape = box, color = red]
+  }
+  アダム -> アダムとエバ [dir = none]
+  アダムとエバ -> エバ [dir = none]
+
+  subgraph Generation0Sons {
+    rank = same
+    アダムとエバの子カイン [shape = point, width=.01, height=.01]
+    アダムとエバの子アベル [shape = point, width=.01, height=.01]
+    アダムとエバの子エノス [shape = point, width=.01, height=.01]
+  }
+
+  アダムとエバ -> アダムとエバの子カイン [dir = none]
+  アダムとエバの子カイン -> アダムとエバの子アベル [dir = none]
+  アダムとエバの子アベル -> アダムとエバの子エノス [dir = none]
+
+  subgraph Generation1 {
+    rank  =  same
+    カイン [shape = box, color = blue, label = "カイン\n(アベルを殺害し放浪者となる)"] 
+    アベル [shape = box, color = blue, label = "アベル\n(カインによって殺害)"] 
+    セツ [shape = box, color = blue, label = "セツ\n(カイン追放後に生まれる)"] 
+  }
+
+  アダムとエバの子カイン -> カイン [dir = none]
+  アダムとエバの子アベル -> アベル [dir = none]
+  アダムとエバの子エノス -> セツ [dir = none]
+
+  カイン -> エノク [dir = none]
+  エノク [shape = box, color = blue, label = "エノク\n(町を作る)"] 
+
+  エノク -> レメク [dir = none, label = "略"]
+  レメク [shape = box, color = blue, label = "レメク\n(勢力を拡大した英雄\nレメクのための復讐は77倍)"]
+
+  ノア [shape = box, color = blue]
+  セツ -> ノア [dir = none, label = "略"]
+
+  subgraph Generation2Sons {
+    rank = same
+    レメクの子ヤバル [shape = point, width=.01, height=.01]
+    レメクの子ユバル [shape = point, width=.01, height=.01]
+    レメクの子トバルカイン [shape = point, width=.01, height=.01]
+    レメクの子ナアマ [shape = point, width=.01, height=.01]
+  }
+
+  レメク -> レメクの子ヤバル  [dir = none]
+  レメクの子ヤバル -> レメクの子ユバル  [dir = none]
+  レメクの子ユバル -> レメクの子トバルカイン  [dir = none]
+  レメクの子トバルカイン -> レメクの子ナアマ  [dir = none]
+
+  subgraph Generation2 {
+    rank  =  same
+    ヤバル [shape = box, color = blue, label="ヤバル\n(遊牧民の祖)"]
+    ユバル [shape = box, color = blue, label="ユバル\n(音楽家の祖)"]
+    トバルカイン [shape = box, color = blue, label="トバルカイン\n(鍛冶職人の祖)"]
+    ナアマ [shape = box, color = red]
+  }
+
+  レメクの子ヤバル -> ヤバル  [dir = none]
+  レメクの子ユバル -> ユバル  [dir = none]
+  レメクの子トバルカイン -> トバルカイン  [dir = none]
+  レメクの子ナアマ -> ナアマ  [dir = none]
+
+  subgraph Generation3Sons {
+    rank = same
+    ノアの子セム [shape = point, width=.01, height=.01]
+    ノアの子ハム [shape = point, width=.01, height=.01]
+    ノアの子ヤペテ [shape = point, width=.01, height=.01]
+  }
+
+  ノア -> ノアの子セム  [dir = none]
+  ノアの子セム -> ノアの子ハム  [dir = none]
+  ノアの子ハム -> ノアの子ヤペテ  [dir = none]
+
+  subgraph Generation3 {
+    rank  =  same
+    セム [shape = box, color = blue]
+    ハム [shape = box, color = blue]
+    ヤペテ [shape = box, color = blue]
+  }
+
+  ノアの子セム -> セム  [dir = none]
+  ノアの子ハム -> ハム  [dir = none]
+  ノアの子ヤペテ -> ヤペテ [dir = none]
+
+  カナン [shape = box, color = blue]
+  ハム -> カナン [dir = none]
+}

@@ -1,0 +1,58 @@
+
+digraph graph_name {
+  graph [
+    charset = "UTF-8";
+    labelloc = "t",
+    labeljust = "c",
+    bgcolor = "#343434",
+    fontcolor = white,
+    fontsize = 18,
+    style = "filled",
+    rankdir = TB,
+    margin = 0.2,
+//    layout = circo
+    layout = dot
+//    layout = fdp
+//    layout = neato
+//    layout = osage
+//    layout = sfdp
+//    layout = twopi
+  ];
+  node [
+    colorscheme = "rdylgn11"
+    style = "solid,filled",
+    fontsize = 14,
+    fontcolor = 6,
+    fontname = "Migu 1M",
+    color = 7,
+    fillcolor = 11
+  ];
+  edge [
+    color = white
+  ];
+
+  alpha, beta, gamma , delta, epsilon, zeta, eta, theta;
+  alpha -> beta;
+  alpha -> gamma;
+  alpha -> delta;
+  alpha -> epsilon;
+  alpha -> zeta;
+  alpha -> eta;
+  alpha -> theta;
+  iota, kappa, lambda, mu, nu, xi;
+  beta -> iota;
+  beta -> kappa;
+  gamma -> lambda;
+  gamma -> mu;
+  gamma -> nu;
+  gamma -> xi;
+  omicron, pi, rho;
+  delta -> omicron;
+  delta -> pi;
+  delta -> rho;
+  sigma, tau;
+  epsilon -> sigma;
+  epsilon -> tau;
+}
+
+

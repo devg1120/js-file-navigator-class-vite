@@ -16,6 +16,9 @@ import "flex-splitter-directive/styles.min.css";
 
 import * as monaco from 'monaco-editor';
 
+import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
+import * as pdfWorker from "pdfjs-dist/legacy/build/pdf.worker.mjs";
+
 export class FileTreeControl {
   constructor() {
     this.fileContent = document.querySelector("#file-content");
@@ -49,6 +52,54 @@ export class FileTreeControl {
      this.ace_editor_use = false;
   }
 
+  pdf_document(pdfElement, pdfPath)  {
+     console.log("pdf_document start");
+     const loadingTask = pdfjsLib.getDocument(pdfPath);
+     (async () => {
+         console.log("read start");
+         const pdf = await loadingTask.promise;
+         console.log("read end");
+         // 全てのページを取得
+         for (let i = 1; i <= pdf.numPages; i++) {
+             const page = await pdf.getPage(i);
+             const scale = 1.0;
+             const viewport = page.getViewport({ scale });
+     
+             // 高DPIをサポート
+             const outputScale = window.devicePixelRatio || 1;
+     
+             // PDFのページ寸法を使用してキャンバスを準備
+             const canvas = document.createElement("canvas");
+             const context = canvas.getContext("2d");
+     
+             canvas.width = Math.floor(viewport.width * outputScale);
+             canvas.height = Math.floor(viewport.height * outputScale);
+             canvas.style.width = Math.floor(viewport.width) + "px";
+             canvas.style.height = Math.floor(viewport.height) + "px";
+     
+             // 縦並びにするためにblock要素を追加
+             canvas.style.display = "block";
+     
+             const transform = outputScale !== 1
+                 ? [outputScale, 0, 0, outputScale, 0, 0]
+                 : null;
+     
+             // PDFのページをキャンバスにレンダリング
+             const renderContext = {
+                 canvasContext: context,
+                 transform,
+                 viewport,
+             };
+             page.render(renderContext);
+     
+             // キャンバスをDOMに追加
+             pdfElement.appendChild(canvas);
+              console.log("pdf view end");
+         }
+     })();
+
+
+  }
   openFile = ({ detail }) => {
     this.saveButton.disabled = true;
     this.saveAsButton.disabled = true;
@@ -61,6 +112,13 @@ export class FileTreeControl {
       case "image/gif":
         this.fileContent.innerHTML = `<img src="${contents}">`;
 
+        break;
+      case "application/pdf":
+        console.log("pdf");
+        console.log(detail);
+        let pdfPath = detail.path;
+        this.fileContent.innerHTML = "";
+        this.pdf_document(this.fileContent, pdfPath );
         break;
       case "image/svg+xml":
         this.fileContent.innerHTML = contents;

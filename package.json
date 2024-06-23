@@ -15,6 +15,7 @@
     "ace-builds": "^1.34.1",
     "flex-splitter-directive": "^0.5.1",
     "marked": "^12.0.2",
-    "monaco-editor": "^0.49.0"
+    "monaco-editor": "^0.49.0",
+    "pdfjs-dist": "^4.3.136"
   }
 }

@@ -49,7 +49,7 @@ const workerBlob = new Blob([
   
     return dir;
   };
-  `
+  `,
 ]);
 
 export const worker = URL.createObjectURL(workerBlob);

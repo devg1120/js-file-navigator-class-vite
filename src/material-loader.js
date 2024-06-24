@@ -1,13 +1,12 @@
 export class MaterialLoader extends HTMLElement {
-
   static get observedAttributes() {
-    return ['size'];
+    return ["size"];
   }
 
   constructor() {
     super();
 
-    const shadowRoot = this.attachShadow({mode: 'open'});
+    const shadowRoot = this.attachShadow({ mode: "open" });
 
     shadowRoot.innerHTML = `
       <style>
@@ -68,16 +67,16 @@ export class MaterialLoader extends HTMLElement {
       </div>
     `;
 
-    this.svg = this.shadowRoot.querySelector('svg');
+    this.svg = this.shadowRoot.querySelector("svg");
   }
 
   attributeChangedCallback(attr, oldVal, newVal) {
-    if(attr === 'size') {
+    if (attr === "size") {
       this.svg.style.width = `${parseInt(newVal, 10)}px`;
     }
   }
 }
 
-if(!customElements.get('material-loader')) {
-  customElements.define('material-loader', MaterialLoader);
+if (!customElements.get("material-loader")) {
+  customElements.define("material-loader", MaterialLoader);
 }

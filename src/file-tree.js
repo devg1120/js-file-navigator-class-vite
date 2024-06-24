@@ -1,16 +1,16 @@
-import './material-loader.js';
-import './material-dialog.js';
-import './material-button.js';
-import './context-menu.js';
-import {worker} from './iterateWorker.js';
+import "./material-loader.js";
+import "./material-dialog.js";
+import "./material-button.js";
+import "./context-menu.js";
+import { worker } from "./iterateWorker.js";
 
-import {onOutsideClick, removeOutsideClick} from './on-outside-click.js';
+import { onOutsideClick, removeOutsideClick } from "./on-outside-click.js";
 
 export class FileTree extends HTMLElement {
   constructor() {
     super();
 
-    const shadowRoot = this.attachShadow({mode: 'open'});
+    const shadowRoot = this.attachShadow({ mode: "open" });
 
     shadowRoot.innerHTML = `
       <style>
@@ -199,42 +199,50 @@ export class FileTree extends HTMLElement {
   }
 
   connectedCallback() {
-    if(!this.isSupported()) {
-      this.shadowRoot.querySelector('.not-supported').style.display = 'block';
+    if (!this.isSupported()) {
+      this.shadowRoot.querySelector(".not-supported").style.display = "block";
     }
 
-    this.ignoredDirectories = ['.git', 'node_modules', 'dist'];
-    this.filesToIndex = ['txt', 'js', 'ts', 'css', 'html', 'json'];
+    this.ignoredDirectories = [".git", "node_modules", "dist"];
+    this.filesToIndex = ["txt", "js", "ts", "css", "html", "json"];
     this.openDirs = new Set();
-    this.fileList = this.shadowRoot.querySelector('#filelist');
-    this.fileContainer = this.shadowRoot.querySelector('#file-container');
+    this.fileList = this.shadowRoot.querySelector("#filelist");
+    this.fileContainer = this.shadowRoot.querySelector("#file-container");
 
-    this.confirmDialog = this.shadowRoot.querySelector('#confirm-dialog');
-    this.confirmCancelButton = this.shadowRoot.querySelector('#confirm-dialog-cancel');
-    this.confirmOkButton = this.shadowRoot.querySelector('#confirm-dialog-ok');
+    this.confirmDialog = this.shadowRoot.querySelector("#confirm-dialog");
+    this.confirmCancelButton = this.shadowRoot.querySelector(
+      "#confirm-dialog-cancel",
+    );
+    this.confirmOkButton = this.shadowRoot.querySelector("#confirm-dialog-ok");
 
-    this.confirmCancelButton.addEventListener('click', () => this.confirmDialog.close());
+    this.confirmCancelButton.addEventListener("click", () =>
+      this.confirmDialog.close(),
+    );
 
-    const browseButton = this.shadowRoot.querySelector('slot[name="browse-button"]').assignedNodes()[0];
+    const browseButton = this.shadowRoot
+      .querySelector('slot[name="browse-button"]')
+      .assignedNodes()[0];
 
-    if(browseButton) {
-      browseButton.addEventListener('click', () => this.openDirectory());
+    if (browseButton) {
+      browseButton.addEventListener("click", () => this.openDirectory());
 
-      if(!this.isSupported()) {
+      if (!this.isSupported()) {
         browseButton.disabled = true;
       }
     }
 
-    this.fileList.addEventListener('click', e => this.openFileOrDirectory(e));
+    this.fileList.addEventListener("click", (e) => this.openFileOrDirectory(e));
 
-    this.fileList.addEventListener('contextmenu', (e) => this.handleRightClick(e));
+    this.fileList.addEventListener("contextmenu", (e) =>
+      this.handleRightClick(e),
+    );
   }
 
   isSupported() {
-    return 'showDirectoryPicker' in window;
+    return "showDirectoryPicker" in window;
   }
 
-  async confirm({body, callback}) {
+  async confirm({ body, callback }) {
     this.confirmDialog.body = body;
 
     this.confirmDialog.open();
@@ -251,19 +259,18 @@ export class FileTree extends HTMLElement {
         resolve(true);
       };
     });
-
   }
 
   async hasReadWritePermission(handle) {
-    return await handle.queryPermission({mode: 'readwrite'}) === 'granted';
+    return (await handle.queryPermission({ mode: "readwrite" })) === "granted";
   }
 
   async getReadWritePermission(handle) {
-    if(!(await this.hasReadWritePermission(handle))) {
-      const permission = await handle.requestPermission({mode: 'readwrite'});
+    if (!(await this.hasReadWritePermission(handle))) {
+      const permission = await handle.requestPermission({ mode: "readwrite" });
 
-      if(permission !== 'granted') {
-        throw new Error('No permission to open file');
+      if (permission !== "granted") {
+        throw new Error("No permission to open file");
       }
     }
 
@@ -274,21 +281,21 @@ export class FileTree extends HTMLElement {
     const file = await handle.getFile();
     const name = file.name;
     const contents = await this.getFileContents(file);
-    const {type} = file; //this.getFileType(file);
+    const { type } = file; //this.getFileType(file);
 
-    return {name, contents, type};
+    return { name, contents, type };
   }
 
   async getFileContents(file) {
-    switch(file.type) {
-      case 'image/png':
-      case 'image/jpg':
-      case 'image/jpeg':
-      case 'image/gif':
+    switch (file.type) {
+      case "image/png":
+      case "image/jpg":
+      case "image/jpeg":
+      case "image/gif":
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
 
-          reader.addEventListener('loadend', () => resolve(reader.result));
+          reader.addEventListener("loadend", () => resolve(reader.result));
           reader.readAsDataURL(file);
         });
 
@@ -298,30 +305,32 @@ export class FileTree extends HTMLElement {
   }
 
   async openFileByPath(filePath) {
-    console.log("openFileByPath filePath:",filePath);
-    const [_, {handle}] = this.findEntry(filePath, this.currentDirectory);
-    console.log("Handle",handle);
+    console.log("openFileByPath filePath:", filePath);
+    const [_, { handle }] = this.findEntry(filePath, this.currentDirectory);
+    console.log("Handle", handle);
 
-    if(handle) {
+    if (handle) {
       //await this.openFileHandle(handle);
-      await this.openFileHandle({ filePath, handle});
+      await this.openFileHandle({ filePath, handle });
       this.highlightFile(filePath);
     }
   }
 
-  async openFileHandle({path, handle}) {
-    console.log("openFileHandle",handle);
+  async openFileHandle({ path, handle }) {
+    console.log("openFileHandle", handle);
     this.currentFileHandle = handle;
 
     await this.getReadWritePermission(handle);
 
     const file = await this.getFileFromHandle(handle);
 
-    this.dispatchEvent(new CustomEvent('file-selected', {
-      composed: true,
-      bubbles: true,
-      detail: {file, path, handle}
-    }));
+    this.dispatchEvent(
+      new CustomEvent("file-selected", {
+        composed: true,
+        bubbles: true,
+        detail: { file, path, handle },
+      }),
+    );
 
     this.highlightFile(path);
   }
@@ -329,7 +338,7 @@ export class FileTree extends HTMLElement {
   async saveFile(contents, handle = this.currentFileHandle) {
     const writable = await handle.createWritable();
 
-    await writable.write({type: 'write', data: contents});
+    await writable.write({ type: "write", data: contents });
     await writable.close();
 
     this.currentFileHandle = handle;
@@ -338,13 +347,12 @@ export class FileTree extends HTMLElement {
 
     await this.refresh();
 
-    return {file, handle};
+    return { file, handle };
   }
-
 
   async saveFileAs(contents) {
     const handle = await window.showSaveFilePicker({
-      suggestedName: this.currentFileHandle.name
+      suggestedName: this.currentFileHandle.name,
     });
 
     await this.saveFile(contents, handle);
@@ -358,12 +366,12 @@ export class FileTree extends HTMLElement {
 
     await this.refresh();
 
-    return {file, handle};
+    return { file, handle };
   }
 
   async entryExists(directoryHandle, entryName) {
     for await (const [name, _] of directoryHandle.entries()) {
-      if(name === entryName) {
+      if (name === entryName) {
         return true;
       }
     }
@@ -371,32 +379,31 @@ export class FileTree extends HTMLElement {
     return false;
   }
 
-  async deleteEntry({handle, parentHandle}) {
-    const recursive = handle.kind === 'directory';
+  async deleteEntry({ handle, parentHandle }) {
+    const recursive = handle.kind === "directory";
 
     const body = `Are you sure you want to delete ${handle.name}?`;
 
     const callback = async () => {
-      await parentHandle.removeEntry(handle.name, {recursive});
+      await parentHandle.removeEntry(handle.name, { recursive });
       await this.refresh();
     };
 
-    return this.confirm({body, callback});
+    return this.confirm({ body, callback });
   }
 
   async pasteEntry(dirHandle, source) {
-    const sourceName = source.path.split('/').pop();
+    const sourceName = source.path.split("/").pop();
 
     const callback = async () => {
       await this.createEntry(dirHandle, source, sourceName);
       await this.refresh();
     };
 
-    if(await this.entryExists(dirHandle, sourceName)) {
+    if (await this.entryExists(dirHandle, sourceName)) {
       const body = `${sourceName} already exists, overwrite?`;
-      await this.confirm({body, callback});
-    }
-    else {
+      await this.confirm({ body, callback });
+    } else {
       await callback();
     }
   }
@@ -404,20 +411,25 @@ export class FileTree extends HTMLElement {
   async createEntry(destinationHandle, source, sourceName) {
     const sourceHandle = source.handle;
 
-    if(sourceHandle.kind === 'file') {
-      const newFileHandle = await destinationHandle.getFileHandle(sourceName, {create: true});
-      const {contents} = await this.getFileFromHandle(sourceHandle);
+    if (sourceHandle.kind === "file") {
+      const newFileHandle = await destinationHandle.getFileHandle(sourceName, {
+        create: true,
+      });
+      const { contents } = await this.getFileFromHandle(sourceHandle);
 
       await this.saveFile(contents, newFileHandle);
 
       return newFileHandle;
     }
 
-    const newDirectoryHandle = await destinationHandle.getDirectoryHandle(sourceName, {create: true});
+    const newDirectoryHandle = await destinationHandle.getDirectoryHandle(
+      sourceName,
+      { create: true },
+    );
     const sourceDir = await this.iterateFiles(sourceHandle, source, true);
 
-    for(const [path, entry] of Object.entries(sourceDir.entries)) {
-      const name = path.split('/').pop();
+    for (const [path, entry] of Object.entries(sourceDir.entries)) {
+      const name = path.split("/").pop();
       await this.createEntry(newDirectoryHandle, entry, name);
     }
 
@@ -425,21 +437,21 @@ export class FileTree extends HTMLElement {
   }
 
   async renameEntry(oldName, newName) {
-    const [path, {handle, parentHandle, entries}] = this.findEntry(oldName);
-    const name = newName.split('/').pop();
-    const recursive = handle.kind === 'directory';
+    const [path, { handle, parentHandle, entries }] = this.findEntry(oldName);
+    const name = newName.split("/").pop();
+    const recursive = handle.kind === "directory";
 
-    await this.createEntry(parentHandle, {path, handle, entries}, name);
-    await parentHandle.removeEntry(handle.name, {recursive});
+    await this.createEntry(parentHandle, { path, handle, entries }, name);
+    await parentHandle.removeEntry(handle.name, { recursive });
     await this.refresh();
   }
 
   //async duplicateEntry(oldName, newName) {
   async duplicateEntry(oldName) {
-    const [path, {handle, parentHandle, entries}] = this.findEntry(oldName);
-    const name = '_' + oldName.split('/').pop();
+    const [path, { handle, parentHandle, entries }] = this.findEntry(oldName);
+    const name = "_" + oldName.split("/").pop();
 
-    await this.createEntry(parentHandle, {path, handle, entries}, name);
+    await this.createEntry(parentHandle, { path, handle, entries }, name);
     await this.refresh();
   }
 
@@ -451,34 +463,34 @@ export class FileTree extends HTMLElement {
 
   async openDirectory() {
     try {
-
       let sr = document.querySelector("#search-results");
 
       while (sr.lastElementChild) {
-	      sr.removeChild(sr.lastElementChild);
+        sr.removeChild(sr.lastElementChild);
       }
 
       this.currentDirectoryHandle = await window.showDirectoryPicker();
       console.dir(this.currentDirectoryHandle.name);
       //let top = document.querySelector("#topdir");
-      let top = this.shadowRoot.querySelector('slot[name="browse-path"]').assignedNodes()[0];
+      let top = this.shadowRoot
+        .querySelector('slot[name="browse-path"]')
+        .assignedNodes()[0];
       top.textContent = this.currentDirectoryHandle.name;
 
       await this.browseDirectory(this.currentDirectoryHandle);
 
       return this.currentDirectoryHandle;
-    }
-    catch(err) {
-      console.log('Request aborted');
+    } catch (err) {
+      console.log("Request aborted");
     }
   }
 
   async browseDirectory(dirHandle) {
-    this.dispatchEvent(new CustomEvent('browsing'));
+    this.dispatchEvent(new CustomEvent("browsing"));
 
     await this.getReadWritePermission(dirHandle);
 
-    this.fileList.innerHTML = '';
+    this.fileList.innerHTML = "";
     this.loading = true;
     this.currentDirectoryHandle = dirHandle;
 
@@ -486,21 +498,24 @@ export class FileTree extends HTMLElement {
       path: this.currentDirectoryHandle.name,
       indexed: false,
       handle: this.currentDirectoryHandle,
-      entries: {}
+      entries: {},
     };
 
-    this.currentDirectory = await this.iterateFiles(this.currentDirectoryHandle, dir);
+    this.currentDirectory = await this.iterateFiles(
+      this.currentDirectoryHandle,
+      dir,
+    );
 
     this.loading = false;
 
     this.listFiles(this.currentDirectory, this.fileList);
 
-    if(!this.currentDirectory.indexed) {
+    if (!this.currentDirectory.indexed) {
       await this.indexDirectory();
     }
 
-    this.fileList.classList.add('ready');
-    this.dispatchEvent(new CustomEvent('ready'));
+    this.fileList.classList.add("ready");
+    this.dispatchEvent(new CustomEvent("ready"));
   }
 
   async iterateFiles(directoryHandle, dir = {}, recursive = false) {
@@ -511,10 +526,10 @@ export class FileTree extends HTMLElement {
         path,
         handle,
         parentHandle: directoryHandle,
-        ...(handle.kind === 'directory' && {entries: {}})
+        ...(handle.kind === "directory" && { entries: {} }),
       };
 
-      if(handle.kind === 'directory' && recursive) {
+      if (handle.kind === "directory" && recursive) {
         await this.iterateFiles(handle, dir.entries[path], recursive);
       }
     }
@@ -524,48 +539,62 @@ export class FileTree extends HTMLElement {
 
   listFiles(directory, fileList) {
     Object.entries(directory.entries)
-    .sort()
-    .sort(([_, a], [__, b]) => a.handle.kind === 'file' && b.handle.kind !== 'file' ? 1 : b.handle.kind === 'file' && a.handle.kind !== 'file' ? -1 : 0)
-    .forEach(([path, entry]) => {
-      const name = path.split('/').pop();
+      .sort()
+      .sort(([_, a], [__, b]) =>
+        a.handle.kind === "file" && b.handle.kind !== "file"
+          ? 1
+          : b.handle.kind === "file" && a.handle.kind !== "file"
+            ? -1
+            : 0,
+      )
+      .forEach(([path, entry]) => {
+        const name = path.split("/").pop();
 
-      if(entry.handle.kind === 'file') {
-        fileList.insertAdjacentHTML('beforeend', `<li data-file="${path}"><span>${name}</span></li>`);
-      }
-      else {
-        const cl = this.openDirs.has(path) ? 'dir open' : 'dir';
+        if (entry.handle.kind === "file") {
+          fileList.insertAdjacentHTML(
+            "beforeend",
+            `<li data-file="${path}"><span>${name}</span></li>`,
+          );
+        } else {
+          const cl = this.openDirs.has(path) ? "dir open" : "dir";
 
-        fileList.insertAdjacentHTML('beforeend', `<li class="${cl}" data-dir="${path}">
+          fileList.insertAdjacentHTML(
+            "beforeend",
+            `<li class="${cl}" data-dir="${path}">
           <span class="arrow"></span>
           <span>${name}</span>
-        </li>`);
+        </li>`,
+          );
 
-        const list = fileList.insertAdjacentElement('beforeend', document.createElement('ul'));
-        this.listFiles(entry, list);
-      }
-    });
+          const list = fileList.insertAdjacentElement(
+            "beforeend",
+            document.createElement("ul"),
+          );
+          this.listFiles(entry, list);
+        }
+      });
   }
 
   async indexDirectory() {
     const dir = {
       path: this.currentDirectoryHandle.name,
       handle: this.currentDirectoryHandle,
-      entries: {}
+      entries: {},
     };
 
     const iterateWorker = new Worker(worker);
 
-    iterateWorker.addEventListener('message', ({data}) => {
+    iterateWorker.addEventListener("message", ({ data }) => {
       this.currentDirectory = data;
 
-      this.dispatchEvent(new CustomEvent('indexed'));
+      this.dispatchEvent(new CustomEvent("indexed"));
     });
 
     const payload = {
       handle: this.currentDirectoryHandle,
       ignoredDirectories: this.ignoredDirectories,
       filesToIndex: this.filesToIndex,
-      dir
+      dir,
     };
     iterateWorker.postMessage(payload);
   }
@@ -575,18 +604,18 @@ export class FileTree extends HTMLElement {
       const dir = {
         path: this.currentDirectoryHandle.name,
         handle: this.currentDirectoryHandle,
-        entries: {}
+        entries: {},
       };
 
       const iterateWorker = new Worker(worker);
 
-      iterateWorker.addEventListener('message', ({data}) => {
+      iterateWorker.addEventListener("message", ({ data }) => {
         this.currentDirectory = data;
         resolve(data);
       });
 
       iterateWorker.addEventListener("messageerror", (e) => {
-        console.log('error from worker', e);
+        console.log("error from worker", e);
         reject(e);
       });
 
@@ -595,7 +624,7 @@ export class FileTree extends HTMLElement {
         ignoredDirectories: this.ignoredDirectories,
         filesToIndex: this.filesToIndex,
         includeFileContent: true,
-        dir
+        dir,
       };
 
       iterateWorker.postMessage(payload);
@@ -603,53 +632,58 @@ export class FileTree extends HTMLElement {
   }
 
   async openFileOrDirectory(e) {
-    const file = [...e.composedPath()].find(el => el.matches && el.matches('li[data-file]'));
-    const dir = [...e.composedPath()].find(el => el.matches && el.matches('li[data-dir]'));
+    const file = [...e.composedPath()].find(
+      (el) => el.matches && el.matches("li[data-file]"),
+    );
+    const dir = [...e.composedPath()].find(
+      (el) => el.matches && el.matches("li[data-dir]"),
+    );
 
-    if(file) {
+    if (file) {
       const filePath = file.dataset.file;
-      const [path, {handle}] = this.findEntry(filePath, this.currentDirectory);
+      const [path, { handle }] = this.findEntry(
+        filePath,
+        this.currentDirectory,
+      );
 
-      if(handle) {
+      if (handle) {
         try {
-          await this.openFileHandle({path, handle});
+          await this.openFileHandle({ path, handle });
           this.highlightFile(filePath);
-        }
-        catch(e) {
+        } catch (e) {
           await this.refresh();
         }
       }
     }
 
-    if(dir) {
-      dir.classList.toggle('open');
+    if (dir) {
+      dir.classList.toggle("open");
       const dirPath = dir.dataset.dir;
       const [_, dirObj] = this.findEntry(dirPath, this.currentDirectory);
 
-      if(dir.classList.contains('open')) {
+      if (dir.classList.contains("open")) {
         this.openDirs.add(dirPath);
-      }
-      else {
+      } else {
         this.openDirs.delete(dirPath);
       }
 
       const entriesList = dir.nextElementSibling;
 
       // lazily iterate directory
-      if(Object.entries(dirObj.entries).length === 0) {
+      if (Object.entries(dirObj.entries).length === 0) {
         await this.iterateFiles(dirObj.handle, dirObj);
       }
 
       // lazily populate file list of directory
-      if(entriesList.childElementCount === 0) {
+      if (entriesList.childElementCount === 0) {
         this.listFiles(dirObj, entriesList);
       }
 
       // recursively close directory and any of its subdirectories
-      if(!dir.classList.contains('open')) {
-        entriesList.querySelectorAll('.dir').forEach(entry => {
-          if(entry.classList.contains('open')) {
-            entry.classList.remove('open');
+      if (!dir.classList.contains("open")) {
+        entriesList.querySelectorAll(".dir").forEach((entry) => {
+          if (entry.classList.contains("open")) {
+            entry.classList.remove("open");
 
             const dirPath = entry.dataset.dir;
             this.openDirs.delete(dirPath);
@@ -662,36 +696,47 @@ export class FileTree extends HTMLElement {
   async handleRightClick(e) {
     e.preventDefault();
 
-    const domElement = [...e.composedPath()].find(el => el.matches('li[data-file]') || el.matches('li[data-dir]'));
+    const domElement = [...e.composedPath()].find(
+      (el) => el.matches("li[data-file]") || el.matches("li[data-dir]"),
+    );
 
-    if(domElement) {
+    if (domElement) {
       const path = domElement.dataset.file || domElement.dataset.dir;
       const [_, entryObj] = this.findEntry(path, this.currentDirectory);
 
-      if(entryObj) {
-        const {path, handle, parentHandle, entries} = entryObj;
+      if (entryObj) {
+        const { path, handle, parentHandle, entries } = entryObj;
 
         try {
           await this.getReadWritePermission(handle);
 
-          const {pageX: x, pageY: y} = e;
-          const detail = {path, handle, parentHandle, entries, x, y, domElement};
+          const { pageX: x, pageY: y } = e;
+          const detail = {
+            path,
+            handle,
+            parentHandle,
+            entries,
+            x,
+            y,
+            domElement,
+          };
 
-          if(handle.kind === 'file') {
+          if (handle.kind === "file") {
             this.highlightFile(path);
 
             detail.file = await this.getFileFromHandle(handle);
           }
 
-          this.dispatchEvent(new CustomEvent('right-click', {
-            composed: true,
-            bubbles: true,
-            detail
-          }));
+          this.dispatchEvent(
+            new CustomEvent("right-click", {
+              composed: true,
+              bubbles: true,
+              detail,
+            }),
+          );
 
           this.openContextMenu(detail);
-        }
-        catch(e) {
+        } catch (e) {
           console.log(e);
           await this.refresh();
         }
@@ -700,43 +745,44 @@ export class FileTree extends HTMLElement {
   }
 
   openContextMenu(detail) {
-    const {path, handle, parentHandle, entries, x, y, domElement} = detail;
-    this.contextMenu = this.shadowRoot.querySelector('context-menu');
-    const entryType = handle.kind === 'file' ? 'file' : 'directory';
+    const { path, handle, parentHandle, entries, x, y, domElement } = detail;
+    this.contextMenu = this.shadowRoot.querySelector("context-menu");
+    const entryType = handle.kind === "file" ? "file" : "directory";
 
     this.contextMenu.options = [
       {
-        label: 'Delete',
-        callback: e => {
-          this.deleteEntry({handle, parentHandle});
-        }
+        label: "Delete",
+        callback: (e) => {
+          this.deleteEntry({ handle, parentHandle });
+        },
       },
       {
-        label: 'Copy',
-        callback: async e => {
-          this.copiedEntry = {path, handle, entries};
-        }
+        label: "Copy",
+        callback: async (e) => {
+          this.copiedEntry = { path, handle, entries };
+        },
       },
       {
-        label: 'Paste',
+        label: "Paste",
         callback: async () => {
           await this.pasteEntry(handle, this.copiedEntry);
           this.copiedEntry = null;
         },
-        disabled: !this.copiedEntry
+        disabled: !this.copiedEntry,
       },
       {
-        label: 'Rename',
-        callback: e => {
-          const input = document.createElement('input');
-          const orgName = domElement.querySelector('span').textContent;
+        label: "Rename",
+        callback: (e) => {
+          const input = document.createElement("input");
+          const orgName = domElement.querySelector("span").textContent;
           input.value = orgName;
 
-          const fullyQualifiedName = domElement.dataset.file || domElement.dataset.dir;
+          const fullyQualifiedName =
+            domElement.dataset.file || domElement.dataset.dir;
 
           const removeInput = () => {
             input.remove();
-            domElement.querySelector('span').textContent = orgName;
+            domElement.querySelector("span").textContent = orgName;
 
             removeOutsideClick(removeInput);
           };
@@ -745,124 +791,139 @@ export class FileTree extends HTMLElement {
             onOutsideClick(input, removeInput);
           });
 
-          input.addEventListener('keydown', async ({key}) => {
-            if(key === 'Escape') {
+          input.addEventListener("keydown", async ({ key }) => {
+            if (key === "Escape") {
               removeInput();
             }
 
-            if(key === 'Enter') {
+            if (key === "Enter") {
               const newName = input.value.trim();
 
-              if(newName === orgName) {
+              if (newName === orgName) {
                 removeInput();
-              }
-              else if(newName !== '') {
-                const parts = fullyQualifiedName.split('/');
+              } else if (newName !== "") {
+                const parts = fullyQualifiedName.split("/");
                 parts.pop();
                 parts.push(newName);
 
-                const fullyQualifiedNewName = parts.join('/');
+                const fullyQualifiedNewName = parts.join("/");
 
                 removeInput();
-                await this.renameEntry(fullyQualifiedName, fullyQualifiedNewName);
-              }
-              else {
+                await this.renameEntry(
+                  fullyQualifiedName,
+                  fullyQualifiedNewName,
+                );
+              } else {
                 input.value = orgName;
               }
-
             }
           });
 
-          domElement.querySelector('span').textContent = '';
-          domElement.querySelector('span').appendChild(input);
+          domElement.querySelector("span").textContent = "";
+          domElement.querySelector("span").appendChild(input);
           input.focus();
-        }
+        },
       },
       {
         label: `Copy ${entryType}`,
-        callback: e => {
-          const fullyQualifiedName = domElement.dataset.file || domElement.dataset.dir;
-		console.log(fullyQualifiedName);
+        callback: (e) => {
+          const fullyQualifiedName =
+            domElement.dataset.file || domElement.dataset.dir;
+          console.log(fullyQualifiedName);
           this.duplicateEntry(fullyQualifiedName);
-        }
+        },
       },
       {
         label: `New file`,
         callback: async () => {
-          const startIn = entryType === 'directory' ? handle : parentHandle;
-          await this.newFile({startIn});
-        }
-      }
+          const startIn = entryType === "directory" ? handle : parentHandle;
+          await this.newFile({ startIn });
+        },
+      },
     ];
 
-    this.contextMenu.show({x, y});
+    this.contextMenu.show({ x, y });
   }
 
   highlightFile(filePath) {
     const [_, fileObj] = this.findEntry(filePath, this.currentDirectory);
 
-    if(fileObj) {
+    if (fileObj) {
       this.currentFileHandle = fileObj.handle;
 
-      if(this.selectedFileElement) {
-        this.selectedFileElement.classList.toggle('selected');
+      if (this.selectedFileElement) {
+        this.selectedFileElement.classList.toggle("selected");
       }
 
-      this.selectedFileElement = this.shadowRoot.querySelector(`li[data-file="${filePath}"]`);
+      this.selectedFileElement = this.shadowRoot.querySelector(
+        `li[data-file="${filePath}"]`,
+      );
 
-      if(this.selectedFileElement) {
-        this.selectedFileElement.classList.toggle('selected');
+      if (this.selectedFileElement) {
+        this.selectedFileElement.classList.toggle("selected");
       }
 
-      const parts = fileObj.path.split('/');
+      const parts = fileObj.path.split("/");
 
-      parts.slice(1).reduce((acc, item, index) => {
-        acc.push(item);
+      parts.slice(1).reduce(
+        (acc, item, index) => {
+          acc.push(item);
 
-        const isFile = index + 1 === parts.length - 1;
-        const path = acc.join('/');
-        const selector = isFile ? `li[data-file="${path}"]` : `li[data-dir="${path}"]`;
-        const className = isFile ? `selected` : `open`;
+          const isFile = index + 1 === parts.length - 1;
+          const path = acc.join("/");
+          const selector = isFile
+            ? `li[data-file="${path}"]`
+            : `li[data-dir="${path}"]`;
+          const className = isFile ? `selected` : `open`;
 
-        const entry = this.shadowRoot.querySelector(selector);
+          const entry = this.shadowRoot.querySelector(selector);
 
-        if(entry) {
-          entry.classList.add(className);
+          if (entry) {
+            entry.classList.add(className);
 
-          if(isFile) {
-            this.selectedFileElement = this.shadowRoot.querySelector(`li[data-file="${path}"]`);
+            if (isFile) {
+              this.selectedFileElement = this.shadowRoot.querySelector(
+                `li[data-file="${path}"]`,
+              );
 
-            if(!this.elementIsInView(this.selectedFileElement)) {
-              this.fileContainer.scrollTop = this.selectedFileElement.offsetTop;
+              if (!this.elementIsInView(this.selectedFileElement)) {
+                this.fileContainer.scrollTop =
+                  this.selectedFileElement.offsetTop;
+              }
+            } else {
+              this.openDirs.add(path);
+              const [_, dirObj] = this.findEntry(path, this.currentDirectory);
+              const entriesList = entry.nextElementSibling;
+
+              entriesList.innerHTML = "";
+              this.listFiles(dirObj, entriesList);
             }
           }
-          else {
-            this.openDirs.add(path);
-            const [_, dirObj] = this.findEntry(path, this.currentDirectory);
-            const entriesList = entry.nextElementSibling;
 
-            entriesList.innerHTML = '';
-            this.listFiles(dirObj, entriesList);
-          }
-        }
-
-        return acc;
-      }, parts.slice(0, 1));
+          return acc;
+        },
+        parts.slice(0, 1),
+      );
     }
   }
 
   elementIsInView(element) {
-    const {top, bottom} = element.getBoundingClientRect();
+    const { top, bottom } = element.getBoundingClientRect();
 
-    return top >= 0 && bottom <= (window.innerHeight || document.documentElement.clientHeight);
+    return (
+      top >= 0 &&
+      bottom <= (window.innerHeight || document.documentElement.clientHeight)
+    );
   }
 
   unhighlightFile(filePath) {
-    const fileElement = this.shadowRoot.querySelector(`li[data-file="${filePath}"]`);
+    const fileElement = this.shadowRoot.querySelector(
+      `li[data-file="${filePath}"]`,
+    );
 
-    if(fileElement) {
-      if(fileElement.classList.contains('selected')) {
-        fileElement.classList.remove('selected');
+    if (fileElement) {
+      if (fileElement.classList.contains("selected")) {
+        fileElement.classList.remove("selected");
 
         this.selectedFileElement = null;
         this.currentFileHandle = null;
@@ -871,99 +932,136 @@ export class FileTree extends HTMLElement {
   }
 
   isIgnoredEntry(path) {
-    return path.split('/').some(part => this.ignoredDirectories.includes(part));
+    return path
+      .split("/")
+      .some((part) => this.ignoredDirectories.includes(part));
   }
 
-  getSearchRegex(query, {matchWholeWord, caseSensitive, regex}) {
+  getSearchRegex(query, { matchWholeWord, caseSensitive, regex }) {
     const regexString = matchWholeWord ? `\\b${query}\\b` : query;
-    return caseSensitive ? new RegExp(regexString) : new RegExp(regexString, 'i');
+    return caseSensitive
+      ? new RegExp(regexString)
+      : new RegExp(regexString, "i");
   }
 
   findEntry(fileName, directory = this.currentDirectory) {
     const entries = [...Object.entries(directory.entries)];
 
-    return entries.find(([path, handle]) => fileName === path) ||
+    return (
+      entries.find(([path, handle]) => fileName === path) ||
       entries
-      .filter(([path, {handle}]) => handle.kind === 'directory')
-      .flatMap(([path, entry]) => fileName === path ? entry : this.findEntry(fileName, entry));
+        .filter(([path, { handle }]) => handle.kind === "directory")
+        .flatMap(([path, entry]) =>
+          fileName === path ? entry : this.findEntry(fileName, entry),
+        )
+    );
   }
 
-  async findInFiles(query, config = {matchWholeWord: false, caseSensitive: false, regex: false}) {
-	  console.log("findInFiles");
-    if(!this.currentDirectory.hasFileContent) {
+  async findInFiles(
+    query,
+    config = { matchWholeWord: false, caseSensitive: false, regex: false },
+  ) {
+    console.log("findInFiles");
+    if (!this.currentDirectory.hasFileContent) {
       await this.indexFileContent();
     }
     const searchRegex = this.getSearchRegex(query, config);
     const result = this.searchInFiles(searchRegex);
 
-    const results = result.map(({path, fileContent}) => {
+    const results = result.map(({ path, fileContent }) => {
       const rows = fileContent
-      .split('\n')
-      .map((row, index) => ({line: index + 1, content: row}))
-      .filter(({content}) => searchRegex.test(content)) // whole word: new RegExp(`\\b${query}\\b`).test(content)
-      .map(({content, line}) => ({
-        line,
-        content: content.trim().replaceAll('<', '&lt;').replaceAll('>', '&gt;').replace(query, `<span class="highlight">${query}</span>`)
-      }));
+        .split("\n")
+        .map((row, index) => ({ line: index + 1, content: row }))
+        .filter(({ content }) => searchRegex.test(content)) // whole word: new RegExp(`\\b${query}\\b`).test(content)
+        .map(({ content, line }) => ({
+          line,
+          content: content
+            .trim()
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replace(query, `<span class="highlight">${query}</span>`),
+        }));
 
-      return {path, rows};
+      return { path, rows };
     });
 
-    return {query, results};
+    return { query, results };
   }
 
   searchInFiles(searchRegex, directory = this.currentDirectory) {
     const entries = [...Object.values(directory.entries)];
 
-    const findInFile = ({handle, path, fileContent}) => {
-      return handle.kind === 'file' && !this.isIgnoredEntry(path) && searchRegex.test(fileContent);
+    const findInFile = ({ handle, path, fileContent }) => {
+      return (
+        handle.kind === "file" &&
+        !this.isIgnoredEntry(path) &&
+        searchRegex.test(fileContent)
+      );
     };
 
     return [
       ...entries.filter(findInFile),
       ...entries
-      .filter(({handle, path}) => handle.kind === 'directory' && !this.isIgnoredEntry(path))
-      .flatMap((entry) => findInFile(entry) ? entry : this.searchInFiles(searchRegex, entry))
+        .filter(
+          ({ handle, path }) =>
+            handle.kind === "directory" && !this.isIgnoredEntry(path),
+        )
+        .flatMap((entry) =>
+          findInFile(entry) ? entry : this.searchInFiles(searchRegex, entry),
+        ),
     ];
   }
 
   findFile(query) {
     const results = this.searchFile(query);
 
-    return {query, results};
+    return { query, results };
   }
 
   searchFile(query, directory = this.currentDirectory) {
     const entries = [...Object.values(directory.entries)];
 
-    const fuzzyFindFile = (entry) => this.fuzzysearch(query, entry.path.split('/').pop());
+    const fuzzyFindFile = (entry) =>
+      this.fuzzysearch(query, entry.path.split("/").pop());
 
-    return query === '' ? [] : [
-      ...entries.filter(fuzzyFindFile),
-      ...entries
-      .filter(({handle, path}) => handle.kind === 'directory' && !this.isIgnoredEntry(path))
-      .flatMap((entry) => fuzzyFindFile(entry) ? entry : this.searchFile(query, entry))
-    ]
-    .sort((a, b) => a.path.includes(query) ? -1 : b.path.includes(query) ? 1 : 0)
-    .map((entry) => {
-      const copy = {...entry};
-      copy.highlight = this.fuzzyHighlight(query, entry.path);
-      return copy;
-    });
+    return query === ""
+      ? []
+      : [
+          ...entries.filter(fuzzyFindFile),
+          ...entries
+            .filter(
+              ({ handle, path }) =>
+                handle.kind === "directory" && !this.isIgnoredEntry(path),
+            )
+            .flatMap((entry) =>
+              fuzzyFindFile(entry) ? entry : this.searchFile(query, entry),
+            ),
+        ]
+          .sort((a, b) =>
+            a.path.includes(query) ? -1 : b.path.includes(query) ? 1 : 0,
+          )
+          .map((entry) => {
+            const copy = { ...entry };
+            copy.highlight = this.fuzzyHighlight(query, entry.path);
+            return copy;
+          });
   }
 
   fuzzyHighlight(needle, path) {
-    const pathParts = path.split('/');
+    const pathParts = path.split("/");
     const haystack = pathParts.pop();
     const needleParts = [...needle];
     const haystackParts = [...haystack];
 
-    if(haystack.includes(needle)) {
-      return [pathParts.join('/'), haystack.replace(needle, `<span class="highlight">${needle}</span>`)];
+    if (haystack.includes(needle)) {
+      return [
+        pathParts.join("/"),
+        haystack.replace(needle, `<span class="highlight">${needle}</span>`),
+      ];
     }
 
     const parts = haystackParts.map((part) => {
-      if(part === needleParts[0]) {
+      if (part === needleParts[0]) {
         needleParts.shift();
         return `<span class="highlight">${part}</span>`;
       }
@@ -971,18 +1069,18 @@ export class FileTree extends HTMLElement {
       return part;
     });
 
-    return [pathParts.join('/'), parts.join('')];
+    return [pathParts.join("/"), parts.join("")];
   }
 
   fuzzysearch(needle, haystack) {
     const nlen = needle.length;
     const hlen = haystack.length;
 
-    if(nlen > hlen) {
+    if (nlen > hlen) {
       return false;
     }
 
-    if(nlen === hlen) {
+    if (nlen === hlen) {
       return needle === haystack;
     }
 
@@ -990,7 +1088,7 @@ export class FileTree extends HTMLElement {
     const haystackParts = [...haystack];
 
     haystackParts.forEach((part) => {
-      if(part === needleParts[0]) {
+      if (part === needleParts[0]) {
         needleParts.shift();
       }
     });
@@ -1003,17 +1101,18 @@ export class FileTree extends HTMLElement {
 
     const openDirs = [...this.openDirs];
 
-    for(const dirPath of openDirs) {
+    for (const dirPath of openDirs) {
       const [_, dirObj] = this.findEntry(dirPath, this.currentDirectory);
 
       // previously opened directory no longer exists
-      if(dirObj === undefined) {
+      if (dirObj === undefined) {
         this.openDirs.delete(dirPath);
-      }
-      else if(Object.entries(dirObj.entries).length === 0) {
+      } else if (Object.entries(dirObj.entries).length === 0) {
         await this.iterateFiles(dirObj.handle, dirObj);
 
-        const fileList = this.shadowRoot.querySelector(`li[data-dir="${dirPath}"] + ul`);
+        const fileList = this.shadowRoot.querySelector(
+          `li[data-dir="${dirPath}"] + ul`,
+        );
 
         this.listFiles(dirObj, fileList);
       }
@@ -1021,12 +1120,14 @@ export class FileTree extends HTMLElement {
   }
 
   set loading(isLoading) {
-    isLoading ? this.setAttribute('loading', '') : this.removeAttribute('loading');
+    isLoading
+      ? this.setAttribute("loading", "")
+      : this.removeAttribute("loading");
   }
 
   get loading() {
-    return this.hasAttribute('loading');
+    return this.hasAttribute("loading");
   }
 }
 
-customElements.define('file-tree', FileTree);
+customElements.define("file-tree", FileTree);

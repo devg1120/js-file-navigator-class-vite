@@ -1,13 +1,12 @@
 export class MaterialButton extends HTMLElement {
-
   static get observedAttributes() {
-    return ['label'];
+    return ["label"];
   }
 
   constructor() {
     super();
 
-    const shadowRoot = this.attachShadow({mode: 'open'});
+    const shadowRoot = this.attachShadow({ mode: "open" });
 
     shadowRoot.innerHTML = `
       <style>
@@ -125,58 +124,60 @@ export class MaterialButton extends HTMLElement {
       </button>
   `;
 
-    this.button = this.shadowRoot.querySelector('button');
-    this.label = this.shadowRoot.querySelector('#label');
-    this.ripple = this.shadowRoot.querySelector('.ripple');
+    this.button = this.shadowRoot.querySelector("button");
+    this.label = this.shadowRoot.querySelector("#label");
+    this.ripple = this.shadowRoot.querySelector(".ripple");
   }
 
   connectedCallback() {
-    this.hasAttribute('label') ? this.label.textContent = this.getAttribute('label') : this.label.style.display = 'none';
+    this.hasAttribute("label")
+      ? (this.label.textContent = this.getAttribute("label"))
+      : (this.label.style.display = "none");
 
-    this.button.addEventListener('click', () => {
+    this.button.addEventListener("click", () => {
       this.active = true;
     });
 
-    this.ripple.addEventListener('animationend', () => {
+    this.ripple.addEventListener("animationend", () => {
       this.active = false;
     });
   }
 
   attributeChangedCallback(attr) {
-    if(attr === 'label') {
-      this.hasAttribute('label') ? this.label.textContent = this.getAttribute('label') : this.label.style.display = 'none';
+    if (attr === "label") {
+      this.hasAttribute("label")
+        ? (this.label.textContent = this.getAttribute("label"))
+        : (this.label.style.display = "none");
     }
   }
 
   get disabled() {
-    return this.hasAttribute('disabled');
+    return this.hasAttribute("disabled");
   }
 
   set disabled(isDisabled) {
     this.button.disabled = isDisabled;
 
-    if(isDisabled) {
-      this.setAttribute('disabled', '');
-    }
-    else {
-      this.removeAttribute('disabled');
+    if (isDisabled) {
+      this.setAttribute("disabled", "");
+    } else {
+      this.removeAttribute("disabled");
     }
   }
 
   get active() {
-    return this.hasAttribute('active');
+    return this.hasAttribute("active");
   }
 
   set active(isActive) {
-    if(isActive) {
-      this.setAttribute('active', '');
-    }
-    else {
-      this.removeAttribute('active');
+    if (isActive) {
+      this.setAttribute("active", "");
+    } else {
+      this.removeAttribute("active");
     }
   }
 }
 
-if(!customElements.get('material-button')) {
-  customElements.define('material-button', MaterialButton);
+if (!customElements.get("material-button")) {
+  customElements.define("material-button", MaterialButton);
 }

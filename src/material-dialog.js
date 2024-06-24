@@ -1,9 +1,8 @@
 export class MaterialDialog extends HTMLElement {
-
   constructor() {
     super();
 
-    const shadowRoot = this.attachShadow({mode: 'open'});
+    const shadowRoot = this.attachShadow({ mode: "open" });
 
     shadowRoot.innerHTML = `
             <style>
@@ -150,39 +149,42 @@ export class MaterialDialog extends HTMLElement {
             </div>
         `;
 
-    this.backdrop = this.shadowRoot.querySelector('#backdrop');
-    this.modal = this.shadowRoot.querySelector('#modal');
+    this.backdrop = this.shadowRoot.querySelector("#backdrop");
+    this.modal = this.shadowRoot.querySelector("#modal");
     this.headerSlot = this.shadowRoot.querySelector('slot[name="header"]');
     this.bodySlot = this.shadowRoot.querySelector('slot[name="body"]');
     this.footerSlot = this.shadowRoot.querySelector('slot[name="footer"]');
   }
 
   connectedCallback() {
-    this.style.display = 'none';
+    this.style.display = "none";
 
-    this.backdrop.addEventListener('click', this.handleClick.bind(this));
-    this.backdrop.addEventListener('animationend', this.handleAnimationEnd.bind(this));
+    this.backdrop.addEventListener("click", this.handleClick.bind(this));
+    this.backdrop.addEventListener(
+      "animationend",
+      this.handleAnimationEnd.bind(this),
+    );
   }
 
   handleAnimationEnd(e) {
-    if(e.animationName === 'fadeout') {
-      this.style.display = 'none';
-      this.backdrop.classList.remove('close');
+    if (e.animationName === "fadeout") {
+      this.style.display = "none";
+      this.backdrop.classList.remove("close");
     }
   }
 
   handleClick(e) {
-    if(!this.hasAttribute('modal') && e.composedPath()[0] === this.backdrop) {
+    if (!this.hasAttribute("modal") && e.composedPath()[0] === this.backdrop) {
       this.close();
     }
   }
 
   open() {
-    this.style.display = 'block';
+    this.style.display = "block";
   }
 
   close() {
-    this.backdrop.classList.add('close');
+    this.backdrop.classList.add("close");
   }
 
   get header() {
@@ -192,7 +194,7 @@ export class MaterialDialog extends HTMLElement {
   set header(html) {
     const content = this.headerSlot.assignedNodes();
 
-    if(content.length) {
+    if (content.length) {
       content[0].innerHTML = html;
     }
   }
@@ -204,7 +206,7 @@ export class MaterialDialog extends HTMLElement {
   set body(html) {
     const content = this.bodySlot.assignedNodes();
 
-    if(content.length) {
+    if (content.length) {
       content[0].innerHTML = html;
     }
   }
@@ -216,12 +218,12 @@ export class MaterialDialog extends HTMLElement {
   set footer(html) {
     const content = this.footerSlot.assignedNodes();
 
-    if(content.length) {
+    if (content.length) {
       content[0].innerHTML = html;
     }
   }
 }
 
-if(!customElements.get('material-dialog')) {
-  customElements.define('material-dialog', MaterialDialog);
+if (!customElements.get("material-dialog")) {
+  customElements.define("material-dialog", MaterialDialog);
 }

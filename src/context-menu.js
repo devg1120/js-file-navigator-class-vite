@@ -1,7 +1,6 @@
-import {onOutsideClick} from './on-outside-click.js';
+import { onOutsideClick } from "./on-outside-click.js";
 
 export class ContextMenu extends HTMLElement {
-
   static get observedAttributes() {
     return [];
   }
@@ -9,7 +8,7 @@ export class ContextMenu extends HTMLElement {
   constructor() {
     super();
 
-    const shadowRoot = this.attachShadow({mode: 'open'});
+    const shadowRoot = this.attachShadow({ mode: "open" });
 
     shadowRoot.innerHTML = `
       <style>
@@ -73,55 +72,54 @@ export class ContextMenu extends HTMLElement {
   }
 
   connectedCallback() {
-    this.menu = this.shadowRoot.querySelector('ul');
+    this.menu = this.shadowRoot.querySelector("ul");
     this.hide();
 
     onOutsideClick(this.menu, () => this.hide());
   }
 
   set options(options) {
-    this.menu.innerHTML = '';
+    this.menu.innerHTML = "";
 
-    options.forEach(({label, callback, disabled}) => {
-      const li = document.createElement('li');
-      const action = label.toLowerCase().replace(' ', '-').trim();
+    options.forEach(({ label, callback, disabled }) => {
+      const li = document.createElement("li");
+      const action = label.toLowerCase().replace(" ", "-").trim();
 
-      if(disabled) {
-        li.setAttribute('disabled', '');
+      if (disabled) {
+        li.setAttribute("disabled", "");
       }
 
       li.dataset.action = action;
       li.innerText = label;
-      li.addEventListener('click', async e => {
+      li.addEventListener("click", async (e) => {
         await callback(e);
 
         this.hide();
       });
 
       this.menu.appendChild(li);
-
     });
 
-    this.style.opacity = '0';
-    this.removeAttribute('hidden');
-    this.menuHeight =  this.offsetHeight;
-    this.setAttribute('hidden', '');
-    this.style.opacity = '1';
+    this.style.opacity = "0";
+    this.removeAttribute("hidden");
+    this.menuHeight = this.offsetHeight;
+    this.setAttribute("hidden", "");
+    this.style.opacity = "1";
   }
 
-  show({x = 0, y = 0}) {
-    if(y + this.menuHeight > document.documentElement.clientHeight) {
+  show({ x = 0, y = 0 }) {
+    if (y + this.menuHeight > document.documentElement.clientHeight) {
       y = y - this.menuHeight;
     }
     this.style.top = `${y}px`;
     this.style.left = `${x}px`;
 
-    this.removeAttribute('hidden');
+    this.removeAttribute("hidden");
   }
 
   hide() {
-    this.setAttribute('hidden', '');
+    this.setAttribute("hidden", "");
   }
 }
 
-customElements.define('context-menu', ContextMenu);
+customElements.define("context-menu", ContextMenu);

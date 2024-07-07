@@ -7,9 +7,16 @@ export class PdfDocumentViewer {
     this.pageNum = 1;
     this.pageRendering = false;
     this.pageNumPending = null;
-    this.scale = 0.8;
+    //this.scale = 0.8;
+    this.scale = 1.0;
+    this.scalevalueElement = document.getElementById('scalevalue');
+    this.scalevalue = 100;
+    this.scalevalueElement.value = this.scalevalue;
+    this.scalestep = 10;
     document.getElementById("prev").addEventListener("click", this.onPrevPage);
     document.getElementById("next").addEventListener("click", this.onNextPage);
+    document.getElementById("scaledown").addEventListener("click", this.onScaleDown);
+    document.getElementById("scaleup").addEventListener("click", this.onScaleUp);
   }
 
   async start(pdfElement, pdfPath, data) {
@@ -23,6 +30,7 @@ export class PdfDocumentViewer {
     this.renderPage(this.pageNum);
     pdfElement.appendChild(this.canvas);
   }
+
   renderPage = (num) => {
     this.pageRendering = true;
     
@@ -56,6 +64,23 @@ export class PdfDocumentViewer {
     } else {
       this.renderPage(num);
     }
+  };
+
+  onScaleDown = () => {
+    this.scalevalue -= this.scalestep;
+    //console.log(this.scalevalue);
+    this.scale = this.scalevalue/100;
+    this.queueRenderPage(this.pageNum);
+    this.scalevalueElement.value = this.scalevalue;
+  };
+
+  onScaleUp = () => {
+    this.scalevalue += this.scalestep;
+    //console.log(this.scalevalue);
+    this.scale = this.scalevalue/100;
+    this.queueRenderPage(this.pageNum);
+    this.scalevalueElement.value = this.scalevalue;
+
   };
 
   onPrevPage = () => {

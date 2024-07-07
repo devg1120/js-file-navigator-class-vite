@@ -60,6 +60,13 @@ export class FileTreeControl {
                     <button id="next">Next</button>
                       &nbsp; &nbsp;
                	    <span>Page: <span id="page_num"></span> / <span id="page_count"></span></span>
+<div class="idcontainer">
+  <div class="idfield">
+    <button class="idbutton" id="scaledown">－</button>
+    <input type="text" value="0" class="idinputtext" id="scalevalue">
+    <button class="idbutton" id="scaleup">＋</button>
+  </div>
+</div>
 		  </div>
 		    <div id="PDF-VIEW">
 		  </div>
